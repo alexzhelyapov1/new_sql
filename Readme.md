@@ -59,5 +59,3 @@ DataBase_Client& base = DataBase_Client::get_instance();
 // DataBase for Server (has Events and Users tables):
 DataBase_Server& base = DataBase_Server::get_instance();
 ```
-
-

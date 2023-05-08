@@ -18,49 +18,25 @@ int main()
       // table.print_all_events();
 
       DataBase_Server& main = DataBase_Server::get_instance();
-      User e1("1", "1");
-      User e2("2", "2");
-      main.add_user(e1);
-      main.add_user(e2);
-      main.print_all_users();
-      User new_user("1", "4");
+      User u1("1", "1");
+      User u2("2", "2");
+      main.add_user(u1);
+      main.add_user(u2);
 
-      spdlog::info("List of creds:\n");
-      for (auto& item : main.get_all_users())
-      {
-         std::cout << item << std::endl;
-      }
 
-      main.update_user_password(new_user);
+      Event ev1("1", "1", "1");
+      Event ev2("2", "2", "2");
+      main.add_event(ev1);
+      main.add_event(ev1);
+      main.add_event(ev2);
 
-      spdlog::info("List of creds:\n");
-      for (auto& item : main.get_all_users())
-      {
-         std::cout << item << std::endl;
-      }
+      main.verify_user(u1);
+      main.remove_user_by_login("1");
 
    }
    catch (const sqlite::sqlite_exception& e) {
-      spdlog::error("{}: {} during {}", e.get_code(), e.what(), e.get_sql());
-   }
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+    }
 
-   system("rm main.db");
-
-}
-
-
-int test()
-{
-   DataBase& b = DataBase::get_instance();
-   try {
-      Table_Events table;
-      table.create_table_event(b.get_db());
-
-      Event ev1("Name1", "date 1", "time 1");
-      table.add_event(ev1);
-   }
-   catch (const sqlite::sqlite_exception& e) {
-      spdlog::error("{}: {} during {}", e.get_code(), e.what(), e.get_sql());
-   }
-   return 0;
 }

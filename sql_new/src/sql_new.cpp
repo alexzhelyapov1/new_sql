@@ -125,6 +125,7 @@ std::ostream& operator<< (std::ostream &out, const Event &event)
 DataBase::DataBase()
 {
     db_ = new sqlite::database("main.db");
+    spdlog::info("Database 'main.db' openned");
 }
 
 
@@ -154,18 +155,27 @@ void Table_Events::create_table_event(sqlite::database* db)
 {
     db_ = db;
 
-    *db_ << "create table if not exists EVENTS ("
-                "ID integer primary key autoincrement NOT NULL,"
-                "NAME                      TEXT       NOT NULL, "
-                "INFO                      TEXT               , "
-                "ADDRESS                   TEXT               , "
-                "DATE                      TEXT               , "
-                "TIME                      TEXT               , "
-                "OWNER                     TEXT               , "
-                "LAST_EDIT_TIME            INT                );";
+    try
+    {
+        *db_ << "create table if not exists EVENTS ("
+                    "ID integer primary key autoincrement NOT NULL,"
+                    "NAME                      TEXT       NOT NULL, "
+                    "INFO                      TEXT               , "
+                    "ADDRESS                   TEXT               , "
+                    "DATE                      TEXT               , "
+                    "TIME                      TEXT               , "
+                    "OWNER                     TEXT               , "
+                    "LAST_EDIT_TIME            INT                );";
 
 
-    spdlog::info("Table EVENTS created");
+        spdlog::info("Table EVENTS created");
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+                                                
+    }
 }
 
 
@@ -175,61 +185,112 @@ void Table_Events::add_event(const Event& event) const
     // *db_ << u"INSERT into EVENTS (NAME,INFO,ADDRESS,DATE,TIME,OWNER,LAST_EDIT_TIME) values (?,?,?,?,?,?,?);"
     if (!db_) spdlog::critical("Zero db in add event");
 
-    *db_ << u"INSERT INTO EVENTS (NAME,INFO,ADDRESS,DATE,TIME,OWNER,LAST_EDIT_TIME) VALUES (?,?,?,?,?,?,?);"
-        << event.get_name()
-        << event.get_info()
-        << event.get_address()
-        << event.get_date()
-        << event.get_time()
-        << event.get_owner()
-        << event.get_last_edit_time();
+    try
+    {   
+        int event_exists = 0;   // False
+
+        *db_ << u"SELECT count(*) FROM EVENTS WHERE NAME=?;" << event.get_name() >> event_exists;
+
+        if (event_exists)
+        {
+            spdlog::error("Can't add event! Event already exists. (name = '{}')", event.get_name());
+            return;
+        }
+
+
+        *db_ << u"INSERT INTO EVENTS (NAME,INFO,ADDRESS,DATE,TIME,OWNER,LAST_EDIT_TIME) VALUES (?,?,?,?,?,?,?);"
+            << event.get_name()
+            << event.get_info()
+            << event.get_address()
+            << event.get_date()
+            << event.get_time()
+            << event.get_owner()
+            << event.get_last_edit_time();
+
+        spdlog::info("Event '{}' added", event.get_name());
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
 
 Event Table_Events::find_event_by_name(const std::string& name) const
 {
-    std::vector<Event> events_vec;
-    *db_ << u"SELECT * FROM EVENTS WHERE NAME=?" << name >> [&](int id, std::string name, std::string info, std::string address, 
-            std::string date, std::string time, std::string owner, size_t last_edit_time)
-            {
-                Event temp(id, name, info, address, date, time, owner, last_edit_time);
-                events_vec.push_back(temp);
-            };
+    try
+    {
+        std::vector<Event> events_vec;
+        *db_ << u"SELECT * FROM EVENTS WHERE NAME=?" << name >> [&](int id, std::string name, std::string info, std::string address, 
+                std::string date, std::string time, std::string owner, size_t last_edit_time)
+                {
+                    Event temp(id, name, info, address, date, time, owner, last_edit_time);
+                    events_vec.push_back(temp);
+                };
 
-    if (events_vec.size() > 1)
-    {
-        spdlog::critical("Found more than 1 event by name");
-        return events_vec[0];
+        if (events_vec.size() > 1)
+        {
+            spdlog::critical("Found more than 1 event by name");
+            return events_vec[0];
+        }
+        if (events_vec.size() == 1)
+        {   
+            spdlog::info("Found event named '{}'", name);
+            return events_vec[0];
+        }
+
     }
-    else if (events_vec.size() == 1)
-    {   
-        return events_vec[0];
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
     }
-    else
-    {
-        spdlog::warn("No event found by name = '{}'", name);
-        return Event();
-    }
+
+    spdlog::warn("No event found by name = '{}'", name);
+    return Event();
 }
 
 
 
 void Table_Events::remove_event_by_name(const std::string& name) const
 {
-    *db_ << u"DELETE FROM EVENTS WHERE NAME=?;" << name;
+    try
+    {
+        *db_ << u"DELETE FROM EVENTS WHERE NAME=?;" << name;
+
+        spdlog::info("Event '{}' removed", name);
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
 
 void Table_Events::print_all_events() const
 {
-    std::cout << "Print all events:\n";
-    
-    *db_ << "SELECT NAME FROM EVENTS;" >> [&](std::string name) 
+    try
     {
-        std::cout << name << std::endl;
-    };
+        std::cout << "Print all events:\n";
+        
+        *db_ << "SELECT NAME FROM EVENTS;" >> [&](std::string name) 
+        {
+            std::cout << name << std::endl;
+        };
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
@@ -238,14 +299,24 @@ std::vector<Event> Table_Events::get_all_events() const
 {
     std::cout << "Print all events:\n";
     std::vector<Event> events_vec;
-    
-    *db_ << "SELECT * FROM EVENTS;" >> [&](int id, std::string name, std::string info, std::string address, 
-            std::string date, std::string time, std::string owner, size_t last_edit_time) 
-    {
-        Event temp(id, name, info, address, date, time, owner, last_edit_time);
-        events_vec.push_back(temp);
-    };
 
+    try
+    {    
+        *db_ << "SELECT * FROM EVENTS;" >> [&](int id, std::string name, std::string info, std::string address, 
+                std::string date, std::string time, std::string owner, size_t last_edit_time) 
+        {
+            Event temp(id, name, info, address, date, time, owner, last_edit_time);
+            events_vec.push_back(temp);
+        };
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
+
+    spdlog::info("Vector of all events returned");
     return events_vec;
 }
 
@@ -255,13 +326,26 @@ void Table_Events::update_event(const Event& event) const
 {
     remove_event_by_name(event.get_name());
     add_event(event);
+
+    spdlog::info("Event '{}' updated", event.get_name());
 }
 
 
 
 void Table_Events::rename_event(const std::string& old_name, const std::string& new_name) const
 {
-    *db_ << u"UPDATE EVENTS SET NAME=? WHERE NAME=?" << new_name << old_name;
+    try
+    {
+        *db_ << u"UPDATE EVENTS SET NAME=? WHERE NAME=?" << new_name << old_name;
+
+        spdlog::info("Event '{}' renamed -> '{}'", old_name, new_name);
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
@@ -276,14 +360,22 @@ void Table_Users::create_table_users(sqlite::database* db)
 {
     db_ = db;
 
-    *db_ << "create table if not exists USERS ("
-                "ID integer primary key autoincrement NOT NULL,"
-                "LOGIN                     TEXT       NOT NULL, "
-                "PASSWORD                  TEXT       NOT NULL, "
-                "LAST_EDIT_TIME            INT                );";
+    try
+    {
+        *db_ << "create table if not exists USERS ("
+                    "ID integer primary key autoincrement NOT NULL,"
+                    "LOGIN                     TEXT       NOT NULL, "
+                    "PASSWORD                  TEXT       NOT NULL, "
+                    "LAST_EDIT_TIME            INT                );";
 
+        spdlog::info("Table USERS created");    
+    }
+    catch (const sqlite::sqlite_exception& e) {
 
-    spdlog::info("Table USERS created");    
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
@@ -292,10 +384,32 @@ void Table_Users::add_user(const User& user) const
 {
     if (!db_) spdlog::critical("Zero db in add user");
 
-    *db_ << u"INSERT INTO USERS (LOGIN,PASSWORD,LAST_EDIT_TIME) VALUES (?,?,?);"
-        << user.get_login()
-        << sha256(user.get_password())
-        << user.get_last_edit_time();
+    try
+    {
+        int user_exists = 0;   // False
+
+        *db_ << u"SELECT count(*) FROM USERS WHERE LOGIN=?;" << user.get_login() >> user_exists;
+
+        if (user_exists)
+        {
+            spdlog::error("Can't add user! User already exists. (login = '{}')", user.get_login());
+            return;
+        }
+
+
+        *db_ << u"INSERT INTO USERS (LOGIN,PASSWORD,LAST_EDIT_TIME) VALUES (?,?,?);"
+            << user.get_login()
+            << sha256(user.get_password())
+            << user.get_last_edit_time();
+
+        spdlog::info("User '{}' added", user.get_login());
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
@@ -303,34 +417,57 @@ void Table_Users::add_user(const User& user) const
 User Table_Users::find_user_by_login(const std::string& login) const
 {
     std::vector<User> users_vec;
-    *db_ << u"SELECT * FROM USERS WHERE LOGIN=?" << login >> [&](int id, std::string login, std::string password,
-                                                                                                size_t last_edit_time)
-            {
-                User temp(id, login, password, last_edit_time);
-                users_vec.push_back(temp);
-            };
+
+
+    try
+    {
+        *db_ << u"SELECT * FROM USERS WHERE LOGIN=?" << login >> [&](int id, std::string login, std::string password,
+                                                                                                    size_t last_edit_time)
+                {
+                    User temp(id, login, password, last_edit_time);
+                    users_vec.push_back(temp);
+                };
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
+
 
     if (users_vec.size() > 1)
     {
         spdlog::critical("Found more than 1 user by login");
         return User("", "");
     }
-    else if (users_vec.size() == 1)
+
+    if (users_vec.size() == 1)
     {   
+        spdlog::info("Found user with login '{}'", login);
         return users_vec[0];
     }
-    else
-    {
-        spdlog::warn("No event found by name = '{}'", login);
-        return User("", "");
-    }
+
+    spdlog::warn("No users found by login = '{}'", login);
+    return User("", "");
 }
 
 
 
 void Table_Users::remove_user_by_login(const std::string& login)  const
 {
-    *db_ << u"DELETE FROM USERS WHERE LOGIN=?;" << login;
+    try
+    {
+        *db_ << u"DELETE FROM USERS WHERE LOGIN=?;" << login;
+
+        spdlog::info("User '{}' removed", login);
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
@@ -338,11 +475,20 @@ void Table_Users::remove_user_by_login(const std::string& login)  const
 void Table_Users::print_all_users() const
 {
     std::cout << "Print all users:\n";
-    
-    *db_ << "SELECT LOGIN FROM USERS;" >> [&](std::string login) 
+
+    try
     {
-        std::cout << login << std::endl;
-    };
+        *db_ << "SELECT LOGIN FROM USERS;" >> [&](std::string login) 
+        {
+            std::cout << login << std::endl;
+        };
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+                                                
+    }
 }
 
 
@@ -352,12 +498,23 @@ std::vector<User> Table_Users::get_all_users() const
     std::cout << "Print all Users:\n";
     std::vector<User> users_vec;
     
-    *db_ << "SELECT * FROM USERS;" >> [&](int id, std::string login, std::string password, size_t last_edit_time) 
-    {
-        User temp(id, login, password, last_edit_time);
-        users_vec.push_back(temp);
-    };
 
+    try
+    {
+        *db_ << "SELECT * FROM USERS;" >> [&](int id, std::string login, std::string password, size_t last_edit_time) 
+        {
+            User temp(id, login, password, last_edit_time);
+            users_vec.push_back(temp);
+        };
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+                                                
+    }
+
+    spdlog::info("Vector of all users returned");
     return users_vec;
 }
 
@@ -365,35 +522,52 @@ std::vector<User> Table_Users::get_all_users() const
 
 bool Table_Users::verify_user(const User& user) const
 {
-    std::vector<User> users_vec;
-    *db_ << u"SELECT * FROM USERS WHERE LOGIN=? and PASSWORD=?" << user.get_login() << sha256(user.get_password()) >> 
-                                            [&](int id, std::string login, std::string password, size_t last_edit_time)
-            {
-                User temp(id, login, password, last_edit_time);
-                users_vec.push_back(temp);
-            };
+    try
+    {
+        std::vector<User> users_vec;
+        *db_ << u"SELECT * FROM USERS WHERE LOGIN=? and PASSWORD=?" << user.get_login() << sha256(user.get_password()) >> 
+                                                [&](int id, std::string login, std::string password, size_t last_edit_time)
+                {
+                    User temp(id, login, password, last_edit_time);
+                    users_vec.push_back(temp);
+                };
 
-    if (users_vec.size() > 1)
-    {
-        spdlog::critical("Found more than 1 user by login");
-        return true;
+        if (users_vec.size() > 1)
+        {
+            spdlog::critical("Found more than 1 user by login");
+            return true;
+        }
+        if (users_vec.size() == 1)
+        {   
+            spdlog::info("User '{}' verified", user.get_login());
+            return true;
+        }
     }
-    else if (users_vec.size() == 1)
-    {   
-        return true;
+    catch (const sqlite::sqlite_exception& e) {
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
     }
-    else
-    {
-        spdlog::warn("No event found by name = '{}'", user.get_login());
-        return false;
-    }
+
+    spdlog::warn("No users found by name = '{}'", user.get_login());
+    return false;
 }
 
 
 
 void Table_Users::update_user_password(const User& user) const
 {
-    *db_ << u"UPDATE USERS SET PASSWORD=? WHERE LOGIN=?" << sha256(user.get_password()) << user.get_login();
+    try
+    {
+        *db_ << u"UPDATE USERS SET PASSWORD=? WHERE LOGIN=?" << sha256(user.get_password()) << user.get_login();
+
+        spdlog::info("Password for user '{}' updated", user.get_login());
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+                                                
+    }
 }
 
 
@@ -402,6 +576,8 @@ void Table_Users::update_user_password(const std::string& user_name, const std::
 {
     User temp(user_name, new_password);
     update_user_password(temp);
+
+    spdlog::info("Password for user '{}' updated", user_name);
 }
 
 

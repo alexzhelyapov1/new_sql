@@ -424,6 +424,7 @@ class Table_Users
     //!  @return std::string - HASH
     //----------------------------------------------------------------
     std::string       sha256(const std::string& data)       const;
+    
 };
 
 
