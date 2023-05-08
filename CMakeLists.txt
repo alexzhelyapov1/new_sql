@@ -4,9 +4,9 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/
 project("interactive_event_map")
 
 
-file(GLOB SQL_NEW "sql_new/src/*")
+file(GLOB SQL_NEW "src/*")
 add_executable(InteractiveEventMap_sql ${SQL_NEW})
-target_include_directories(InteractiveEventMap_sql PUBLIC "sql_new/include")
+target_include_directories(InteractiveEventMap_sql PUBLIC "include")
 
 
 find_package(spdlog CONFIG REQUIRED)
