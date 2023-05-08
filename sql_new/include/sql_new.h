@@ -293,13 +293,13 @@ class Table_Events
     //!  
     //!  @param name 
     //----------------------------------------------------------------
-    void               remove_event_by_name (const std::string& name)  const;
+    void    remove_event_by_name (const std::string& name)  const;
 
 
     //----------------------------------------------------------------
     //!  @brief Print in std::cout names of all events in database
     //----------------------------------------------------------------
-    void               print_all_events()               const;
+    void    print_all_events()                              const;
 
 
     //----------------------------------------------------------------
@@ -307,7 +307,7 @@ class Table_Events
     //!  
     //!  @return std::vector<Event> 
     //----------------------------------------------------------------
-    std::vector<Event> get_all_events()                 const;
+    std::vector<Event> get_all_events()                     const;
 
 
     //----------------------------------------------------------------
@@ -315,7 +315,7 @@ class Table_Events
     //!  
     //!  @param event - event with new info
     //----------------------------------------------------------------
-    void               update_event(const Event& event) const;
+    void    update_event(const Event& event)                const;
 
 
     //----------------------------------------------------------------
@@ -324,7 +324,7 @@ class Table_Events
     //!  @param old_name 
     //!  @param new_name 
     //----------------------------------------------------------------
-    void               rename_event(const std::string& old_name, const std::string& new_name) const;
+    void    rename_event(const std::string& old_name, const std::string& new_name) const;
 };
 
 

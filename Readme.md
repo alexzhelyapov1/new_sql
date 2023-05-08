@@ -31,6 +31,8 @@ void               remove_event_by_name(const std::string& name)  const;
 void               print_all_events()               const;          // Print list of std::string names
 std::vector<Event> get_all_events()                 const;
 void               update_event(const Event& event) const;
+
+void               rename_event(const std::string& old_name, const std::string& new_name) const;
 ```
 
 
