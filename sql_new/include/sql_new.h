@@ -415,6 +415,15 @@ class Table_Users
     //!  @param new_password 
     //----------------------------------------------------------------
     void update_user_password(const std::string& user_name, const std::string& new_password) const;
+
+
+    //----------------------------------------------------------------
+    //!  @brief Return hash of data (to retain safely passwords in database)
+    //!  
+    //!  @param data - string to HASH
+    //!  @return std::string - HASH
+    //----------------------------------------------------------------
+    std::string       sha256(const std::string& data)       const;
 };
 
 

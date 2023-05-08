@@ -18,13 +18,6 @@
 
 
 
-//----------------------------------------------------------------
-//!  @brief Type conversion from User to std::string
-//!  @note 
-//!  
-//!  @return std::string 
-//----------------------------------------------------------------
-
 User::operator std::string() const 
 {
     std::string str = std::to_string(id_) + "\n";
@@ -104,13 +97,6 @@ Event::Event(std::string msg)
 
 
 
-//----------------------------------------------------------------
-//!  Redefinition of operator << for class User
-//!
-//!  @note          Depends of CREDS structure!!!
-//!  @copyright     AlexZ
-//----------------------------------------------------------------
-
 std::ostream& operator<< (std::ostream &out, const User &User)
 {
     out << User.id_ << "    " << User.login_ << "    " << User.password_ << "    " << User.last_edit_time_;
@@ -119,13 +105,6 @@ std::ostream& operator<< (std::ostream &out, const User &User)
 }
 
 
-
-//----------------------------------------------------------------
-//!  Redefinition of operator << for class Event
-//!
-//!  @note          Depends of CREDS structure!!!
-//!  @copyright     AlexZ
-//----------------------------------------------------------------
 
 std::ostream& operator<< (std::ostream &out, const Event &event)
 {
@@ -143,12 +122,6 @@ std::ostream& operator<< (std::ostream &out, const Event &event)
 
 
 
-//----------------------------------------------------------------
-//!  
-//!
-//!  @copyright     AlexZ
-//----------------------------------------------------------------
-
 DataBase::DataBase()
 {
     db_ = new sqlite::database("main.db");
@@ -156,10 +129,6 @@ DataBase::DataBase()
 
 
 
-
-//----------------------------------------------------------------
-//!  @brief Destroy the Data Base object - closing file of database
-//----------------------------------------------------------------
 DataBase::~DataBase()
 {
     try
@@ -325,7 +294,7 @@ void Table_Users::add_user(const User& user) const
 
     *db_ << u"INSERT INTO USERS (LOGIN,PASSWORD,LAST_EDIT_TIME) VALUES (?,?,?);"
         << user.get_login()
-        << user.get_password()
+        << sha256(user.get_password())
         << user.get_last_edit_time();
 }
 
@@ -397,7 +366,7 @@ std::vector<User> Table_Users::get_all_users() const
 bool Table_Users::verify_user(const User& user) const
 {
     std::vector<User> users_vec;
-    *db_ << u"SELECT * FROM USERS WHERE LOGIN=? and PASSWORD" << user.get_login() << user.get_password() >> 
+    *db_ << u"SELECT * FROM USERS WHERE LOGIN=? and PASSWORD=?" << user.get_login() << sha256(user.get_password()) >> 
                                             [&](int id, std::string login, std::string password, size_t last_edit_time)
             {
                 User temp(id, login, password, last_edit_time);
@@ -424,7 +393,7 @@ bool Table_Users::verify_user(const User& user) const
 
 void Table_Users::update_user_password(const User& user) const
 {
-    *db_ << u"UPDATE USERS SET PASSWORD=? WHERE LOGIN=?" << user.get_password() << user.get_login();
+    *db_ << u"UPDATE USERS SET PASSWORD=? WHERE LOGIN=?" << sha256(user.get_password()) << user.get_login();
 }
 
 
@@ -433,4 +402,11 @@ void Table_Users::update_user_password(const std::string& user_name, const std::
 {
     User temp(user_name, new_password);
     update_user_password(temp);
+}
+
+
+
+std::string Table_Users::sha256(const std::string& data) const
+{
+    return data + "psw";
 }
