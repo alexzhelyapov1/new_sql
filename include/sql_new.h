@@ -292,6 +292,8 @@ class Table_Events
     //!  @brief Remove event by name from database
     //!  
     //!  @param name 
+    //! 
+    //!  Question: why it should not be const?
     //----------------------------------------------------------------
     void    remove_event_by_name (const std::string& name)  const;
 
@@ -479,8 +481,8 @@ class DataBase_Server: public DataBase, public Table_Events, public Table_Users
 
     //----------------------------------------------------------------
     //!  @brief Construct a new DataBase_Client object
-    //!   Creting Events database
-    //!   Creting Users database
+    //!   Creating Events table
+    //!   Creating Users table
     //----------------------------------------------------------------
 
     DataBase_Server()   // Потребовал сделать конструктор DataBase публичным
