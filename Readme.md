@@ -1,6 +1,6 @@
 # Как использовать написанное? (Для баратанчиков)
 
-### Получение экзепляров объектов:
+## Получение экзепляров объектов:
 ```C++
 // Создание Event(std::string msg) и User(std::string msg) зарезервировано для пересылки сообщений между клиентом и сервером
 
@@ -18,7 +18,7 @@ DataBase_Server& main = DataBase_Server::get_instance();
 
 ```
 
-### Методы обращения с таблицей Events:
+## Методы обращения с таблицей Events:
 
 ```C++
 // create_table_event(sqlite::database* db) - прописана в конструкторе базы базы данных и создает таблицу в ней
@@ -47,6 +47,9 @@ std::vector<User>  get_all_users()                                  const;
 
 bool               verify_user(const User& user)                    const;
 void               update_user(const User& user)                    const;  
+void               update_user_password(const User& user)           const;
+
+void               update_user_password(const std::string& user_name, const std::string& new_password) const;
 ```
 
 
@@ -58,4 +61,27 @@ DataBase_Client& base = DataBase_Client::get_instance();
 
 // DataBase for Server (has Events and Users tables):
 DataBase_Server& base = DataBase_Server::get_instance();
+```
+
+
+## Exmple
+```C++
+
+    DataBase_Server& main = DataBase_Server::get_instance();
+
+    User u1("1", "1");
+    User u2("2", "2");
+    main.add_user(u1);
+    main.add_user(u2);
+
+
+    Event ev1("1", "1", "1");
+    Event ev2("2", "2", "2");
+    main.add_event(ev1);
+    main.add_event(ev1);
+    main.add_event(ev2);
+
+    main.verify_user(u1);
+    main.remove_user_by_login("1");
+
 ```
