@@ -350,6 +350,28 @@ void Table_Events::rename_event(const std::string& old_name, const std::string& 
 
 
 
+time_t Table_Events::get_last_edit_time_events() const
+{
+    long long last_edit_time = 0;
+
+    try
+    {
+        *db_ << u"SELECT MAX(LAST_EDIT_TIME) FROM EVENTS" >> last_edit_time;
+
+        spdlog::info("Last edit time of events = {}", last_edit_time);
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
+    
+    return last_edit_time;
+}
+
+
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Table_Users
 // ---------------------------------------------------------------------------------------------------------------------
@@ -585,4 +607,26 @@ void Table_Users::update_user_password(const std::string& user_name, const std::
 std::string Table_Users::sha256(const std::string& data) const
 {
     return data + "psw";
+}
+
+
+
+time_t Table_Users::get_last_edit_time_users() const
+{
+    long long last_edit_time = 0;
+
+    try
+    {
+        *db_ << u"SELECT MAX(LAST_EDIT_TIME) FROM USERS" >> last_edit_time;
+
+        spdlog::info("Last edit time of users = {}", last_edit_time);
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
+
+    return last_edit_time;
 }

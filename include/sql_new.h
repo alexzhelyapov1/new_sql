@@ -327,6 +327,14 @@ class Table_Events
     //!  @param new_name 
     //----------------------------------------------------------------
     void    rename_event(const std::string& old_name, const std::string& new_name) const;
+
+
+    //----------------------------------------------------------------
+    //!  @brief Get the last edit time of events object
+    //!  
+    //!  @return time_t 
+    //----------------------------------------------------------------
+    time_t  get_last_edit_time_events()                     const;
 };
 
 
@@ -426,6 +434,14 @@ class Table_Users
     //!  @return std::string - HASH
     //----------------------------------------------------------------
     std::string       sha256(const std::string& data)       const;
+
+
+    //----------------------------------------------------------------
+    //!  @brief Get the last edit time of users object
+    //!  
+    //!  @return time_t 
+    //----------------------------------------------------------------
+    time_t  get_last_edit_time_users()                     const;
     
 };
 
