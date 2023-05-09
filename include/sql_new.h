@@ -344,7 +344,7 @@ class Table_Events
     //!  @param time 
     //!  @return std::vector<Event> 
     //----------------------------------------------------------------
-    std::vector<Event> get_events_to_sync(time_t time)    const;
+    std::vector<Event> get_events_to_sync(time_t time)      const;
 };
 
 

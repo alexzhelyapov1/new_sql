@@ -55,6 +55,11 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "thread": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "any": "cpp",
+        "complex": "cpp",
+        "list": "cpp",
+        "map": "cpp",
+        "typeindex": "cpp"
     }
 }
