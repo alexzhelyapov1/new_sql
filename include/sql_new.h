@@ -335,6 +335,16 @@ class Table_Events
     //!  @return time_t 
     //----------------------------------------------------------------
     time_t  get_last_edit_time_events()                     const;
+
+
+    //----------------------------------------------------------------
+    //!  @brief Get the events to update object
+    //! Returns Event where last_edit_time > time 
+    //!  
+    //!  @param time 
+    //!  @return std::vector<Event> 
+    //----------------------------------------------------------------
+    std::vector<Event> get_events_to_sync(time_t time)    const;
 };
 
 
@@ -433,7 +443,7 @@ class Table_Users
     //!  @param data - string to HASH
     //!  @return std::string - HASH
     //----------------------------------------------------------------
-    std::string       sha256(const std::string& data)       const;
+    std::string        sha256(const std::string& data)                  const;
 
 
     //----------------------------------------------------------------
@@ -441,7 +451,17 @@ class Table_Users
     //!  
     //!  @return time_t 
     //----------------------------------------------------------------
-    time_t  get_last_edit_time_users()                     const;
+    time_t             get_last_edit_time_users()                       const;
+
+
+    //----------------------------------------------------------------
+    //!  @brief Get the users to update object
+    //! Returns events where last_edit_time > time 
+    //!  
+    //!  @param time 
+    //!  @return std::vector<User> 
+    //----------------------------------------------------------------
+    std::vector<User>  get_users_to_sync(time_t time)                   const;
     
 };
 
