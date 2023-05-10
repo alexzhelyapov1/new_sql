@@ -259,9 +259,9 @@ class DataBase
 
 class Table_Events
 {
-    sqlite::database* db_;
 
   public:
+    sqlite::database* db_;
 
     //----------------------------------------------------------------
     //!  @brief Create a table event object
@@ -345,6 +345,13 @@ class Table_Events
     //!  @return std::vector<Event> 
     //----------------------------------------------------------------
     std::vector<Event> get_events_to_sync(time_t time)      const;
+
+
+    void add_event_bug()
+    {
+        std::cout << "Hello";
+        *db_ << "INSERT INTO EVENTS (NAME,INFO,ADDRESS,DATE,TIME,OWNER,LAST_EDIT_TIME) VALUES ('5','5','5','5','5','',1683760471);";
+    }
 };
 
 
@@ -358,9 +365,9 @@ class Table_Events
 
 class Table_Users
 {
-    sqlite::database* db_;
     
   public:
+    sqlite::database* db_;
     
     //----------------------------------------------------------------
     //!  @brief Create a table Users object

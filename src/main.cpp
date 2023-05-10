@@ -18,25 +18,16 @@ int main()
       // table.print_all_events();
 
       DataBase_Server& main = DataBase_Server::get_instance();
-      // User u1("1", "1");
-      // User u2("2", "2");
-      // main.add_user(u1);
-      // main.add_user(u2);
+      main.add_event_bug();
+      // main.add_event(void add_event_bug());
 
-
-      // Event ev1("1", "1", "1");
-      // Event ev2("2", "2", "2");
-      // main.add_event(ev1);
-      // main.add_event(ev1);
-      // main.add_event(ev2);
-
-      // main.verify_user(u1);
-      // main.remove_user_by_login("1");
-
-      main.get_last_edit_time_events();
-      main.get_last_edit_time_users();
-      main.get_users_to_sync(0);
-      main.get_events_to_sync(0);
+      main.remove_event_by_name("5");
+      Event ev1(0, "5", "5", "5", "5", "5", "", 1683760471);
+      main.add_event(ev1);
+      for (const auto& item : main.get_all_events())
+      {
+         std::cout << item << std::endl;
+      }
 
    }
    catch (const sqlite::sqlite_exception& e) {
