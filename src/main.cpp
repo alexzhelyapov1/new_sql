@@ -25,16 +25,11 @@ int main()
 
       system("sleep 1");
 
-      main.remove_event_by_id(1);
+      ev1.set_id(1);
+      ev1.set_date("11.11.11");
+      main.update_event(ev1);
+      
       main.print_all_events();
-
-      // main.verify_user(u1);
-      // main.remove_user_by_login("1");
-
-      // main.get_last_edit_time_events();
-      // main.get_last_edit_time_users();
-      // main.get_users_to_sync(0);
-      // main.get_events_to_sync(0);
 
    }
    catch (const sqlite::sqlite_exception& e) {

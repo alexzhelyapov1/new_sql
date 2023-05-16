@@ -395,20 +395,19 @@ std::vector<Event> Table_Events::get_all_events() const
 
 void Table_Events::update_event(const Event& event) const
 {
-    remove_event_by_name(event.get_name());
-    add_event(event);
-
     try
     {
+        std::cout << "Updating event:\n" << event << std::endl;
+
         *db_ << u"UPDATE EVENTS SET "
-                                        "NAME           = ?"
-                                        "INFO           = ?"
-                                        "ADDRESS        = ?"
-                                        "DATE           = ?"
-                                        "TIME           = ?"
-                                        "OWNER          = ?"
-                                        "ARCHIVED       = ?"
-                                        "LAST_EDIT_TIME = ?"
+                                        "NAME           = ?, "
+                                        "INFO           = ?, "
+                                        "ADDRESS        = ?, "
+                                        "DATE           = ?, "
+                                        "TIME           = ?, "
+                                        "OWNER          = ?, "
+                                        "ARCHIVED       = ?, "
+                                        "LAST_EDIT_TIME = ?  "
                                                                 "WHERE ID=?;"
                                         << event.get_name()
                                         << event.get_info()
@@ -417,7 +416,8 @@ void Table_Events::update_event(const Event& event) const
                                         << event.get_time()
                                         << event.get_owner()
                                         << event.get_archived()
-                                        << std::time(nullptr);
+                                        << std::time(nullptr)
+                                        << event.get_id();
 
 
         spdlog::info("Event '{}' updated", event.get_name());
