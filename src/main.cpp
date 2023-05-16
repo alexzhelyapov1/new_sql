@@ -23,6 +23,9 @@ int main()
 
       main.print_all_events();
 
+      main.remove_event_by_name("1");
+      main.print_all_events();
+
       // main.verify_user(u1);
       // main.remove_user_by_login("1");
 
