@@ -429,7 +429,7 @@ class Table_Users
     //!  
     //!  @param login 
     //----------------------------------------------------------------
-  void               remove_user_by_login(const std::string& login)   const;
+    void               remove_user_by_login(const std::string& login)   const;
 
 
     //----------------------------------------------------------------
