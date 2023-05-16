@@ -172,7 +172,7 @@ void Table_Events::create_table_event(sqlite::database* db)
                     "TIME                      TEXT               , "
                     "OWNER                     TEXT               , "
                     "LAST_EDIT_TIME            INT                , "
-                    "ARCHIVED                  INT               );";
+                    "ARCHIVED                  INT                );";
 
 
         spdlog::info("Table EVENTS created");
@@ -397,8 +397,6 @@ void Table_Events::update_event(const Event& event) const
 {
     try
     {
-        std::cout << "Updating event:\n" << event << std::endl;
-
         *db_ << u"UPDATE EVENTS SET "
                                         "NAME           = ?, "
                                         "INFO           = ?, "

@@ -26,10 +26,18 @@ int main()
       system("sleep 1");
 
       ev1.set_id(1);
+      ev1.set_archived(true);
       ev1.set_date("11.11.11");
       main.update_event(ev1);
       
       main.print_all_events();
+
+
+      std::cout << "Print all not archived events:\n";
+      for (const auto& item : main.get_all_events())
+      {
+         std::cout << item << std::endl;
+      }
 
    }
    catch (const sqlite::sqlite_exception& e) {
