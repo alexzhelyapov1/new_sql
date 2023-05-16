@@ -305,7 +305,7 @@ void Table_Events::remove_event_by_name(const std::string& name) const
 {
     try
     {
-        *db_ << u"UPDATE EVENTS SET ARCHIVED=TRUE WHERE NAME=?;" << name;
+        *db_ << u"UPDATE EVENTS SET ARCHIVED=TRUE, LAST_EDIT_TIME=? WHERE NAME=?;" << std::time(nullptr) << name;
 
 
         spdlog::info("Event '{}' removed", name);
@@ -324,7 +324,7 @@ void Table_Events::remove_event_by_id(const int& id) const
 {
     try
     {
-        *db_ << u"UPDATE EVENTS SET ARCHIVED=TRUE WHERE ID=?;" << id;
+        *db_ << u"UPDATE EVENTS SET ARCHIVED=TRUE, LAST_EDIT_TIME=? WHERE ID=?;" << std::time(nullptr) << id;
 
         spdlog::info("Event with id '{}' removed", id);
     }
@@ -619,7 +619,7 @@ void Table_Users::remove_user_by_login(const std::string& login)  const
 {
     try
     {
-        *db_ << u"UPDATE USERS SET ARCHIVED=TRUE WHERE LOGIN=?;" << login;
+        *db_ << u"UPDATE USERS SET ARCHIVED=TRUE, LAST_EDIT_TIME=? WHERE LOGIN=?;" << std::time(nullptr) << login;
 
         spdlog::info("User '{}' removed", login);
     }
@@ -637,7 +637,7 @@ void Table_Users::remove_user_by_id(const int& id)  const
 {
     try
     {
-        *db_ << u"UPDATE USERS SET ARCHIVED=TRUE WHERE ID=?;" << id;
+        *db_ << u"UPDATE USERS SET ARCHIVED=TRUE, LAST_EDIT_TIME=? WHERE ID=?;" << std::time(nullptr) << id;
 
         spdlog::info("User with id '{}' removed", id);
     }
