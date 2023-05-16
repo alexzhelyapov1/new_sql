@@ -1,2 +1,3 @@
 vcpkg_installed
 build
+src/.DS_Store
