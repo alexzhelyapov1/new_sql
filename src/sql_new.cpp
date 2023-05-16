@@ -398,7 +398,36 @@ void Table_Events::update_event(const Event& event) const
     remove_event_by_name(event.get_name());
     add_event(event);
 
-    spdlog::info("Event '{}' updated", event.get_name());
+    try
+    {
+        *db_ << u"UPDATE EVENTS SET "
+                                        "NAME           = ?"
+                                        "INFO           = ?"
+                                        "ADDRESS        = ?"
+                                        "DATE           = ?"
+                                        "TIME           = ?"
+                                        "OWNER          = ?"
+                                        "ARCHIVED       = ?"
+                                        "LAST_EDIT_TIME = ?"
+                                                                "WHERE ID=?;"
+                                        << event.get_name()
+                                        << event.get_info()
+                                        << event.get_address()
+                                        << event.get_date()
+                                        << event.get_time()
+                                        << event.get_owner()
+                                        << event.get_archived()
+                                        << std::time(nullptr);
+
+
+        spdlog::info("Event '{}' updated", event.get_name());
+    }
+    catch (const sqlite::sqlite_exception& e) {
+
+        spdlog::error("{}: {} during {}\nFile = '{}', function = '{}', line = '{}'", e.get_code(), e.what(), e.get_sql(),
+                                                __FILE__, __FUNCTION__, __LINE__);
+
+    }
 }
 
 
